@@ -3264,7 +3264,7 @@ class TacticServerStub(object):
         values  = {'json': dumps(filter)}
         widget_html = server.get_widget(class_name, args, values)
         '''
-        return my.server.get_widget(my.ticket, class_name, args, values)
+        return my.server.get_widget(my.ticket, class_name, args)
 
 
 
