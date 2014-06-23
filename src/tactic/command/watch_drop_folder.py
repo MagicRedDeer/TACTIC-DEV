@@ -28,6 +28,7 @@ from pyasm.command import Command
 from tactic.command import SchedulerTask, Scheduler
 from time import gmtime, strftime
 from optparse import OptionParser
+from tactic.command import PythonCmd
 
 import threading
 
@@ -57,7 +58,7 @@ class WatchFolderFileActionThread(threading.Thread):
 
         task = my.kwargs.get("task")
         paths = task.get_paths()
-
+        
         count = 0
         restart = False
 
@@ -82,6 +83,7 @@ class WatchFolderFileActionThread(threading.Thread):
                     "search_type": task.search_type,
                     "base_dir": task.base_dir,
                     "process": task.process,
+                    "script_path":task.script_path,
                     "path": path
                 }
 
@@ -263,6 +265,7 @@ class CustomCmd(object):
         base_dir = my.kwargs.get("base_dir")
         search_type = my.kwargs.get("search_type")
         process = my.kwargs.get("process")
+        watch_script_path =  my.kwargs.get("script_path")
         if not process:
             process = "publish"
 
@@ -328,7 +331,14 @@ class CustomCmd(object):
             #task = server.create_task(sobj.get('__search_key__'),process='publish')
             #server.update(task, {'status': 'New'})
 
+
             server_return_value = server.simple_checkin(search_key,  context, file_path, description=description, mode='copy')
+            
+
+            cmd = PythonCmd(script_path=watch_script_path,search_type=search_type,file_path=file_path,search_key=search_key)
+            cmd.execute()
+
+
 
 
             
@@ -386,6 +396,7 @@ class WatchDropFolderTask(SchedulerTask):
         my.project_code = kwargs.get("project_code")
         my.search_type = kwargs.get("search_type")
         my.process = kwargs.get("process")
+        my.script_path = kwargs.get("script_path")
 
         super(WatchDropFolderTask, my).__init__()
 
@@ -457,6 +468,7 @@ class WatchDropFolderTask(SchedulerTask):
 
 
         # Start check-in thread
+        
         checkin = WatchFolderFileActionThread(
                 task=my,
                 )
@@ -478,7 +490,12 @@ class WatchDropFolderTask(SchedulerTask):
         parser.add_option("-d", "--drop_path", dest="drop_path", help="Define drop folder path")
         parser.add_option("-s", "--search_type", dest="search_type", help="Define search_type.")
         parser.add_option("-P", "--process", dest="process", help="Define process.")
+        parser.add_option("-S", "--script_path",dest="script_path", help="Define script_path.")
         (options, args) = parser.parse_args()
+
+        
+
+
 
         if options.project != None :
             project_code= options.project
@@ -504,8 +521,16 @@ class WatchDropFolderTask(SchedulerTask):
         else:
             process= 'publish'
 
+        if options.script_path!=None :
+            script_path = options.script_path
+        else:
+            script_path="None"
+          
 
-        task = WatchDropFolderTask(base_dir=drop_path, project_code=project_code,search_type=search_type, process=process)
+
+
+
+        task = WatchDropFolderTask(base_dir=drop_path, project_code=project_code,search_type=search_type, process=process,script_path=script_path)
         
         scheduler = Scheduler.get()
         scheduler.add_single_task(task, delay=1)
