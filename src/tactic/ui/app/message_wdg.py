@@ -167,9 +167,10 @@ class FormatMessageWdg(BaseRefreshWdg):
                     description = "<b>Files checked in:</b><br/>%s" % sobject.get("process")
                 else:
                     display = []
-                    for key, val in update_data.items():
-                        
-                        display.append('%s &ndash; %s'%(key, val))
+                    if update_data:
+                        for key, val in update_data.items():
+                            
+                            display.append('%s &ndash; %s'%(key, val))
                     base_search_type = Project.extract_base_search_type(search_type)
                     
                     description = DivWdg()
