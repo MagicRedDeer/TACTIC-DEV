@@ -2307,7 +2307,7 @@ class ApiXMLRPC(BaseApiXMLRPC):
 
 
     @xmlrpc_decorator
-    def get_connected_sobjects(my, ticket, src_sobject, context=''):
+    def get_connected_sobjects(my, ticket, src_sobject, context='', verify_src=True):
         '''get all of the connected sobjects
 
         @params
@@ -2320,13 +2320,15 @@ class ApiXMLRPC(BaseApiXMLRPC):
         from pyasm.biz import SObjectConnection
         if type(src_sobject) == types.DictType:
             src_sobject = src_sobject.get('__search_key__')
-
-        sobject_a = SearchKey.get_by_search_key(src_sobject)
-
+        if verify_src:
+            sobject_a = SearchKey.get_by_search_key(src_sobject)
+        else:
+            # it could have been deleted
+            sobject_a = src_sobject
         if not sobject_a:
             raise ApiException('Source sObject [%s] is not found ' %src_sobject)
 
-        connections, sobjects = SObjectConnection.get_connected_sobjects(sobject_a, context=context)
+        connections, sobjects = SObjectConnection.get_connected_sobjects(sobject_a, context=context, search_key= not verify_src)
         sobject_list = []
         for sobject in sobjects:
             sobject_dict = my._get_sobject_dict(sobject)
@@ -2335,12 +2337,13 @@ class ApiXMLRPC(BaseApiXMLRPC):
 
 
     @xmlrpc_decorator
-    def get_connected_sobject(my, ticket, src_sobject, context=''):
+    def get_connected_sobject(my, ticket, src_sobject, context='', verify_src=True):
         '''get all of the connected sobjects
 
         @params:
         src_sobject - the original sobject from which the connection starts
         context - an arbirarty parameter which defines type of connection
+        verify_src - verify if the src_sobject exists first
 
         @return:
         a single sobject
@@ -2349,11 +2352,15 @@ class ApiXMLRPC(BaseApiXMLRPC):
         if type(src_sobject) == types.DictType:
             src_sobject = src_sobject.get('__search_key__')
 
-        sobject_a = SearchKey.get_by_search_key(src_sobject)
+        if verify_src:
+            sobject_a = SearchKey.get_by_search_key(src_sobject)
+        else:
+            # it could have been deleted
+            sobject_a = src_sobject
         if not sobject_a:
             raise ApiException('Source sObject [%s] is not found ' %src_sobject)
 
-        sobject = SObjectConnection.get_connected_sobject(sobject_a, context=context)
+        sobject = SObjectConnection.get_connected_sobject(sobject_a, context=context, search_key= not verify_src)
         sobject_dict = my._get_sobject_dict(sobject)
 
         return sobject_dict

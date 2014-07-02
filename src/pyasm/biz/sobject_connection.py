@@ -13,7 +13,7 @@
 __all__ = ["SObjectConnection"]
 
 from pyasm.common import Environment, Container, Common
-from pyasm.search import SearchType, SObject, Search
+from pyasm.search import SearchType, SObject, Search, SearchKey
 
 from project import Project
 
@@ -128,7 +128,7 @@ class SObjectConnection(SObject):
     get_search = classmethod(get_search)
 
 
-    def get_connected_sobjects(cls, sobjects, direction="dst", order_by=None, context='', filters=None):
+    def get_connected_sobjects(cls, sobjects, direction="dst", order_by=None, context='', filters=None, search_key=False):
         '''get the sobjects that are connect to this sobject.'''
         unique_stype = False
         single_sobject = False
@@ -136,16 +136,33 @@ class SObjectConnection(SObject):
         src_search_ids = []
         if not sobjects:
             return [], []
+        def get_search_types(sobjects, search_key=False):
+            int_search_types = []
+            if search_key:
+                int_search_types = [SearchKey.extract_search_type(x) for x in sobjects]
+            else:
+                int_search_types = [x.get_search_type() for x in sobjects]
+            return int_search_types
+
+        def get_ids(sobjects, search_key=False):
+            int_search_ids = []
+            if search_key:
+                int_search_ids = [SearchKey.extract_id(x) for x in sobjects]
+            else:
+                int_search_ids = [x.get_id() for x in sobjects]
+            return int_search_ids
+
+
         if isinstance(sobjects, list):
-            search_types = [x.get_search_type() for x in sobjects]
-            search_ids = [x.get_id() for x in sobjects]
+            search_types = get_search_types(sobjects, search_key=search_key)
+            search_ids = get_ids(sobjects, search_key=search_key)
             if len(Common.get_unique_list(search_types)) == 1:
                 unique_stype = True
               
  
         else:
-            search_types = [sobjects.get_search_type()]
-            search_ids = [sobjects.get_id()]
+            search_types = get_search_types([sobjects], search_key=search_key)
+            search_ids = get_ids([sobjects], search_key=search_key)
             unique_stype = True
             single_sobject = True
 
@@ -253,8 +270,8 @@ class SObjectConnection(SObject):
 
 
 
-    def get_connected_sobject(cls, sobject, direction="dst", order_by=None, context='', filters=None):
-        connections, sobjects = cls.get_connected_sobjects(sobject, direction=direction, order_by=order_by, context=context, filters=filters)
+    def get_connected_sobject(cls, sobject, direction="dst", order_by=None, context='', filters=None, search_key=False):
+        connections, sobjects = cls.get_connected_sobjects(sobject, direction=direction, order_by=order_by, context=context, filters=filters, search_key=search_key)
         if not sobjects:
             return None
         else:

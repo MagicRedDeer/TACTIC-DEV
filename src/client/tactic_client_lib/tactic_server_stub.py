@@ -1515,7 +1515,7 @@ class TacticServerStub(object):
 
 
 
-    def get_connected_sobjects(my, src_sobject, context='default'):
+    def get_connected_sobjects(my, src_sobject, context='default', verify_src=True):
         '''API Function: get_connected_sobjects(src_sobject, context='default')
         Get all of the connected sobjects
 
@@ -1524,15 +1524,16 @@ class TacticServerStub(object):
 
         @keyparam:
         context - an arbitrary parameter which defines type of connection
+        verify_src - verify if the src_sobject exists before getting connection
 
         @return:
         list - a list of connected sobjects
         '''
-        return my.server.get_connected_sobjects(my.ticket, src_sobject, context)
+        return my.server.get_connected_sobjects(my.ticket, src_sobject, context, verify_src)
 
 
 
-    def get_connected_sobject(my, src_sobject, context='default'):
+    def get_connected_sobject(my, src_sobject, context='default', verify_src=True):
         '''API Function: get_connected_sobject(src_sobject, context='default')
         Get the connected sobject
 
@@ -1541,11 +1542,12 @@ class TacticServerStub(object):
            
         @keyparam:
         context - an arbirarty parameter which defines type of connection
+        verify_src - verify if the src_sobject exists before getting connection
 
         @return:
         dict - a single connected sobject
         '''
-        return my.server.get_connected_sobject(my.ticket, src_sobject, context)
+        return my.server.get_connected_sobject(my.ticket, src_sobject, context, verify_src)
 
 
 

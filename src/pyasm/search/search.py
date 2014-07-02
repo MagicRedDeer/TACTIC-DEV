@@ -4129,7 +4129,7 @@ class SObject(object):
         # remember the data
         data = my.data.copy()
 
-        # call a delete event
+        # call a retire event
         from pyasm.command import Trigger
         output = {}
         output["is_retire"] = True
