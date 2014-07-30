@@ -36,13 +36,14 @@ class SyncFilter(object):
         log = my.log
         rules = my.rules
 
+        # TODO:
         # Give rules.  Only notes will get through
-        # we need heirarchical rules.  This will ensure that only notes
+        # we need hierarchical rules.  This will ensure that only notes
         # for project/assets will pass
         # Here, the second one is much more difficult to do.
         rulesXXX = '''
-        <rule group='heirarchy' key='project/asset.sthpw/note' access='allow'/>
-        <rule group='heirarchy' key="project/asset.sthpw/note['assigned','beth']" access='allow'/>"
+        <rule group='hierarchy' key='project/asset.sthpw/note' access='allow'/>
+        <rule group='hierarchy' key="project/asset.sthpw/note['assigned','beth']" access='allow'/>"
         '''
 
         access_manager = AccessManager()
@@ -107,6 +108,33 @@ class SyncFilter(object):
 
     def get_message(my):
         return my.message
+
+
+
+    # predefined rule sets to simplify the type of relationship between servers
+    def get_config_rules(my, level):
+        # allow config
+        return '''
+        <rule group='search_type' key='config/*' access='allow'/>
+        '''
+
+    def get_project_rules(my, level):
+        # allow config
+        project_code = Project.get_project_code()
+        return '''
+        <rule group='search_type' key='%s/*' access='allow'/>
+        ''' % project_code
+
+    def get_sthpw_rules(my, level):
+        # allow config
+        project_code = Project.get_project_code()
+        return '''
+        <rule group='search_type' key='sthpw/*' access='allow'/>
+        '''
+
+
+
+
 
 
 if __name__ == '__main__':
