@@ -111,9 +111,20 @@ class TransactionQueueAppendCmd(Trigger):
 
 
             from tactic.ui.sync import SyncFilter
-            sync_filter = SyncFilter(rules=rules, transaction=log)
-            sync_filter.execute()
+            mode = "data"
+            #default = "deny"
+            default = "allow"
+            sync_filter = SyncFilter(rules=rules, transaction=log, default=default)
 
+
+            #rules = sync_filter.get_sthpw_filter()
+            if mode == "config":
+                rules = sync_filter.get_project_filter()
+                sync_filter.add_rules(rules)
+
+
+
+            sync_filter.execute()
             filtered_xml = sync_filter.get_filtered_xml()
             message = sync_filter.get_message()
 

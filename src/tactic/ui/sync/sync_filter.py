@@ -28,13 +28,8 @@ class SyncFilter(object):
         my.kwargs = kwargs
 
         my.log = my.kwargs.get("transaction")
-        my.rules = my.kwargs.get("rules")
         my.message = ""
 
-
-    def execute(my):
-        log = my.log
-        rules = my.rules
 
         # TODO:
         # Give rules.  Only notes will get through
@@ -45,10 +40,32 @@ class SyncFilter(object):
         <rule group='hierarchy' key='project/asset.sthpw/note' access='allow'/>
         <rule group='hierarchy' key="project/asset.sthpw/note['assigned','beth']" access='allow'/>"
         '''
+        my.access_manager = AccessManager()
 
-        access_manager = AccessManager()
-        access_manager.add_xml_rules(rules)
 
+        default = my.kwargs.get("default")
+        if not default:
+            default = "deny"
+        if default == "deny":
+            rule = '''
+            <rule group='search_type' default='deny'/>
+            '''
+            my.access_manager.add_xml_rules(rule)
+
+
+        my.rules = my.kwargs.get("rules")
+        if my.rules:
+            my.access_manager.add_xml_rules(my.rules)
+
+
+
+    def add_rules(my, rules):
+            my.access_manager.add_xml_rules(rules)
+
+
+    def execute(my):
+        log = my.log
+        access_manager = my.access_manager
 
         # filter out project
         namespace = log.get_value("namespace")
@@ -112,25 +129,35 @@ class SyncFilter(object):
 
 
     # predefined rule sets to simplify the type of relationship between servers
-    def get_config_rules(my, level):
+    def get_config_rules(cls):
         # allow config
         return '''
         <rule group='search_type' key='config/*' access='allow'/>
         '''
+    get_config_rules = classmethod(get_config_rules)
 
-    def get_project_rules(my, level):
+    def get_project_rules(cls):
         # allow config
-        project_code = Project.get_project_code()
+        project = Project.get()
+        project_code = Project.get("code")
+        project_type = Project.get("type")
         return '''
         <rule group='search_type' key='%s/*' access='allow'/>
+        <rule group='search_type' key='sthpw/note' access='allow'/>
+        <rule group='search_type' key='sthpw/task' access='allow'/>
+        <rule group='search_type' key='sthpw/snapshot' access='allow'/>
+        <rule group='search_type' key='sthpw/file' access='allow'/>
+        <rule group='search_type' key='sthpw/work_hour' access='allow'/>
         ''' % project_code
+    get_project_rules = classmethod(get_project_rules)
 
-    def get_sthpw_rules(my, level):
+    def get_sthpw_rules(cls):
         # allow config
         project_code = Project.get_project_code()
         return '''
         <rule group='search_type' key='sthpw/*' access='allow'/>
         '''
+    get_sthpw_rules = classmethod(get_sthpw_rules)
 
 
 
