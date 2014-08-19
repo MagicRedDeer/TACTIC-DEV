@@ -2916,6 +2916,7 @@ spt.dg_table._search_cbk = function(evt, bvr)
     var ingest_data_view = target.getAttribute("spt_ingest_data_view");
     var checkin_context = target.getAttribute("spt_checkin_context");
     var checkin_type = target.getAttribute("spt_checkin_type");
+    var group_elements = target.getAttribute("spt_group_elements");
     var class_name = target.getAttribute("spt_class_name");
     if (class_name == null) {
         class_name = "tactic.ui.panel.TableLayoutWdg";
@@ -2960,6 +2961,7 @@ spt.dg_table._search_cbk = function(evt, bvr)
         'table_id': table_id,
         'search_type': search_type,
         'element_names': element_names,
+        'group_elements': group_elements,
         'column_widths': column_widths,
         'view': view,
         'search_view': search_view,
