@@ -907,7 +907,7 @@ class GanttElementWdg(BaseTableElementWdg):
         width1 = float(diff1.days) * my.percent_per_day
         if width1 < 0:
             width1 = 0
-        
+
         one_day = datetime.timedelta(days=1)
         diff2 = (date2 - my.start_date + one_day )
         width2 = float(diff2.days) * my.percent_per_day
@@ -1219,10 +1219,6 @@ class GanttElementWdg(BaseTableElementWdg):
         
         # draw up all of the ranges
         info = {}
-        width1, width2 = my.calculate_widths(start_sobj_date,end_sobj_date)
-        
-        info['width'] = [width1, width2]
-
         start_date_str = str(start_sobj_date)
         end_date_str = str(end_sobj_date)
 
@@ -1243,10 +1239,13 @@ class GanttElementWdg(BaseTableElementWdg):
             info['search_key'] = search_key
         else:
             info['search_key'] = my.search_key
+
+        width1, width2 = my.calculate_widths(start_sobj_date,end_sobj_date)
+        
+        info['width'] = [width1, width2]
         start_width, end_width = info.get('width')
-
-
-            
+        duration_width = end_width - start_width
+           
         # set the spacer: used for either the first or all in detail mode
         spacer = DivWdg()
         spacer.add_class("spt_gantt_spacer")
@@ -1319,12 +1318,12 @@ class GanttElementWdg(BaseTableElementWdg):
 
         corners = ['TL','TR','BL','BR']
 
+        start_sobj_date = start_sobj_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_sobj_date = end_sobj_date.replace(hour=0, minute=0, second=0, microsecond=0)
 
-        duration_width = end_width - start_width
         diff = end_sobj_date - start_sobj_date
 
-
-        my.days = round(float(diff.seconds)/3600/24) + diff.days + 1
+        my.days = diff.days + 1
 
         duration = my.get_duration_wdg( duration_width, color, height, corners=corners, day_data=day_data)
         widget.add(duration)
